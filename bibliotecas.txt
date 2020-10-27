@@ -1,0 +1,7 @@
+Adafruit-Blinka  
+adafruit-circuitpython-busdevice     
+adafruit-circuitpython-vl53l0x      
+Adafruit-GPIO      
+Adafruit-PlatformDetect     
+Adafruit-PureIO
+matplotlib
