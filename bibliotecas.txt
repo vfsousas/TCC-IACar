@@ -5,3 +5,4 @@ Adafruit-GPIO
 Adafruit-PlatformDetect     
 Adafruit-PureIO
 matplotlib
+numpy
