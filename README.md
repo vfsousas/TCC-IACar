@@ -4,18 +4,19 @@
 
 
 Este repositório será utilizado pra o TCC da Faculdade Facens
+
 **Aluno:** Vanderson Ferreira de Sousa
+
 **RA:** 183140
   
   
 
 ## Introdução
 Recentemente, foi descoberto um tipo muito novo de IA que você pode construir a partir zero e sem a necessidade de qualquer biblioteca de Machine Learning ou DeepLearning. Esta IA revolucionária é chamada ***Augmented Random Search(ARS***).
-E em uma implementação muito simples, é capaz de fazer exatamente o mesmo coisa que o Google Deep Mind fez em sua realização no ano passado que é treinar uma IA para andar e correr em um campo.
-No entanto, o ARS é 100 vezes mais rápido e 100 vezes mais poderoso.
-• Não há necessidade de algoritmos e estruturas sofisticadas
+Em uma implementação muito simples, é capaz de fazer exatamente o mesmo coisa que o Google Deep Mind fez em sua realização no ano passado que é treinar uma IA para andar e correr em um campo.
+No entanto, o ARS é 100 vezes mais rápido e 100 vezes mais poderosos além de não haver necessidade de algoritmos e estruturas sofisticadas
 
-Todos os processos e uso dessa ARS foram retiradas do ***Paper Simple random search provides a competitive approach to reinforcement learning*** no qual pode ser acessado por esse [link](https://arxiv.org/abs/1803.07055)
+Todos os processos e uso dessa ARS foram retiradas do Paper *** Simple random search provides a competitive approach to reinforcement learning*** no qual pode ser acessado por esse [link](https://arxiv.org/abs/1803.07055)
 A ARS foi desenvolvido por Horia Mania e Aurelia Guy na Universidade de Berkley em 2018 e a intenção desse repositório é demostrar o uso desse algoritmo em um carro real construido por mim utilizando um Raspiberry Pi3 + hardware necessário para mover as rodas e 1 sensor de distancia que fará leituras do ambiente e servirá de input para o algoritmo do ARS.
 
 Versão 1.0 do Carro
@@ -24,7 +25,7 @@ Versão 1.0 do Carro
 Esse algoritmo está dentro da área de **Aprendizagem por Reforço**, que é um tipo de aprendizagem usado em sistemas multi-agente no qual os agentes devem interagir no ambiente e aprenderem por conta própria, ganhando recompensas positivas quando executam ações corretas e recompensas negativas quando executam ações que não levem para o objetivo. A inteligência artificial aprende sem nenhum conhecimento prévio, adaptando-se ao ambiente e encontrando as soluções
 
 ### Basic Random Search (BRS)
-o ARS é uma inovação do código BRS tendo sua ideia na Pesquisa Aleatória Básica é escolher uma política parametrizada 𝜋𝜃, chocar (ou perturbar) os parâmetros 𝜃 aplicando + 𝛎𝜹 e -𝛎𝜹 (onde 𝛎 <1 é um ruído constante e 𝜹 é um número aleatório gerado a partir de uma distribuição normal) .
+O ARS é uma inovação do código BRS tendo sua ideia na Pesquisa Aleatória Básica é escolher uma política parametrizada 𝜋𝜃, chocar (ou perturbar) os parâmetros 𝜃 aplicando + 𝛎𝜹 e -𝛎𝜹 (onde 𝛎 <1 é um ruído constante e 𝜹 é um número aleatório gerado a partir de uma distribuição normal) .
 Em seguida, aplica-se as ações baseadas em 𝜋 (𝜃 + 𝛎𝜹) e 𝜋 (𝜃-𝛎𝜹) e são as recompensas r (𝜃 + 𝛎𝜹) e r (𝜃-𝛎𝜹) resultantes dessas ações.
 Agora que temos as recompensas do 𝜃 perturbado, calcule a média
 Δ = 1 / N * Σ [r (𝜃 + 𝛎𝜹) - r (𝜃-𝛎𝜹)] 𝜹 para todos os 𝜹 e atualizamos os parâmetros 𝜃 usando Δ e uma taxa de aprendizagem 𝝰.
