@@ -101,4 +101,4 @@ O trecho do código demonstrado no Paper é o seguinte:
 
 ## Resultados
 Os primeiros resultados podem ser visto no video abaixo
-![Video](/videos/video01.mp4)
+![Video](https://www.youtube.com/watch?v=w3pzScq0zEQ)
