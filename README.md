@@ -21,7 +21,7 @@ Este repositório será utilizado pra o TCC da Faculdade Facens
 
 ## Introdução
 
-Recentemente, foi descoberto um tipo muito novo de IA que você pode construir a partir zero e sem a necessidade de qualquer biblioteca de Machine Learning ou DeepLearning. Esta IA revolucionária é chamada ***Augmented Random Search(ARS***).
+Recentemente, foi descoberto um tipo muito novo de IA que você pode construir a partir zero e sem a necessidade de qualquer biblioteca de Machine Learning ou DeepLearning. Esta IA revolucionária é chamada ***Augmented Random Search(ARS)***.
 
 Em uma implementação muito simples, é capaz de fazer exatamente o mesmo coisa que o Google Deep Mind fez em sua realização no ano passado que é treinar uma IA para andar e correr em um campo.
 
@@ -29,9 +29,10 @@ No entanto, o ARS é 100 vezes mais rápido e 100 vezes mais poderosos além de 
 
   
 
-Todos os processos e uso dessa ARS foram retiradas do Paper *** Simple random search provides a competitive approach to reinforcement learning*** no qual pode ser acessado por esse [link](https://arxiv.org/abs/1803.07055) e o paper em PDF pode ser baixado nesse [link](https://arxiv.org/pdf/1803.07055.pdf)
+Todos os processos e uso dessa ARS foram retiradas do Paper ***Simple random search provides a competitive approach to reinforcement learning*** no qual pode ser acessado por esse [link](https://arxiv.org/abs/1803.07055) e o paper em PDF pode ser baixado nesse [link](https://arxiv.org/pdf/1803.07055.pdf)
 
-A ARS foi desenvolvido por Horia Mania e Aurelia Guy na Universidade de Berkley em 2018 e a intenção desse repositório é demostrar o uso desse algoritmo em um carro real construido por mim utilizando um Raspiberry Pi3 + hardware necessário para mover as rodas e 1 sensor de distancia que fará leituras do ambiente e servirá de input para o algoritmo do ARS.
+A ARS foi desenvolvido por Horia Mania, Aurelia Guy e Benjamin Recht do ***Department of Electrical Engineering and Computer Science
+University of California, Berkeley*** em 2018 e a intenção desse repositório é demostrar o uso desse algoritmo em um carro real construido por mim utilizando um Raspiberry Pi3 + hardware necessário para mover as rodas e 1 sensor de distancia que fará leituras do ambiente e servirá de input para o algoritmo do ARS.
 
   
 
