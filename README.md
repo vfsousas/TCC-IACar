@@ -100,4 +100,5 @@ O trecho do código demonstrado no Paper é o seguinte:
 
 
 ## Resultados
-Ainda a serem coletados
+Os primeiros resultados podem ser visto no video abaixo
+![Video](/videos/video01.mp4)
