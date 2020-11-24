@@ -103,3 +103,8 @@ O trecho do código demonstrado no Paper é o seguinte:
 Os primeiros resultados podem ser visto no video abaixo
 [![LINK](https://img.youtube.com/vi/w3pzScq0zEQ/0.jpg)](https://www.youtube.com/watch?v=w3pzScq0zEQ)
 
+## Atualização do Chassi do carro
+A versão anterior do carro se mostrou muito instavel nos testes, além de ser muito lento o uso do motor de passo junto com o sensor de distancia.
+A nova versão vem com um chassi de acrilico mais reforçado, um "eixo de direção" controlado por um servo motor e 3 sensores de direção VL53l0X fixos
+<img src='imagens/carrov2.png' width=700  height=400>
+
