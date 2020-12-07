@@ -1,3 +1,4 @@
+
 import RPi.GPIO as GPIO
 import time
 import board
@@ -31,7 +32,7 @@ class SetupGPIO:
     
     def antigo(self):
         self.i2c = busio.I2C(board.SCL, board.SDA)
-        xshut = [ DigitalInOut(board.D13) , DigitalInOut(board.D8) ]
+        xshut = [ DigitalInOut(board.D4), DigitalInOut(board.D17),DigitalInOut(board.D27)]
 
         for power_pin in xshut:
             power_pin.switch_to_output(value=False)
@@ -104,8 +105,9 @@ class Vl53_Radar:
 raspGPIO  = SetupGPIO()
 try:
     radar     = Vl53_Radar(raspGPIO.get_gpio())
+    raspGPIO.findSensor()
+
     raspGPIO.antigo()
-    #raspGPIO.findSensor()
 except Exception as err:
     print('err', err)
     raspGPIO.clean()
