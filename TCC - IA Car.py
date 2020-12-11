@@ -120,7 +120,7 @@ class MotorCarro:
              self.left_backward()
         elif movimento==5:
              self.right_backward()
-        time.sleep(0.5)
+        time.sleep(0.1)
 
         self.stop()
 
@@ -212,10 +212,10 @@ class CarEnv:
     def __init__(self, motorCarro, radar):
         self.actions_space = ['forward', 'backward', 'leftforward', 'rightforward', 'leftbackward', 'rightbackward']
         self.initialradarpositions = radar.get_distancias()
-        self.observation_space = np.array(np.zeros([len(initialradarpositions), len(self.actions_space)]))
+        self.observation_space = np.array(np.zeros([len(self.initialradarpositions), len(self.actions_space)]))
         self.state = self.initialradarpositions
         self.done = False
-        self.input_size = len(initialradarpositions)
+        self.input_size = len(self.initialradarpositions)
         self.output_size = len(self.actions_space)
         self.motorCar =  motorCarro
         self.finishCount = 0
@@ -226,7 +226,7 @@ class CarEnv:
         Quando o carro se movimentar 3 vezes para a frente sem parar é o objetivo dele
         '''
         print("STATE FINISH:", state)
-        if(state[2]>100 and state[2]>100 and state[3]>100 and state[4]>100):
+        if(state[1]>15  and state[3]>15):
             self.finishCount+=1
         else:
             self.finishCount=0
@@ -249,7 +249,7 @@ class CarEnv:
         try:
             self.state = self.radar.get_distancias()
         finally:
-           stepMotor.parar_motor()
+           self.motorCar.movimentacarro(0)
         return self.state
         
     def take_action(self, action):
@@ -259,8 +259,14 @@ class CarEnv:
         self.motorCar.movimentacarro(l)
 
     def getReward(self):
-        f = lambda x: 10 if  x>100 else -10
-        return f(max(self.state[:5]))
+
+        #f = lambda x: 10 if  x>100 else -10
+        #return f(max(self.state[:5]))
+        retVal = -1
+        print('state recompensa', self.state)
+        if(self.state[0]>15  and self.state[1]>15  and self.state[2]>15  and self.state[3]>15):
+            retVal=1
+        return retVal
 
 
 
@@ -283,8 +289,8 @@ class CarEnv:
 
 class Hiperparametros():
     def __init__(self):
-        self.steps = 10
-        self.epsodes = 10
+        self.steps = 100
+        self.epsodes = 100
         self.lr = 0.02
         self.directions = 6
         self.best_directions = 6
@@ -413,7 +419,7 @@ class Politicas():
         step = np.zeros(self.theta.shape) #Inicializa com as dimensões de pesos
         for r_pos, r_neg, d in rollouts:
             step += (r_pos - r_neg) * d #Somatoria das recompensas positivas e negativas e a multicao do delta
-        self.theta += hp.learning_rate / (hp.best_directions * sigma_r) * step #Atualizando a matriz  de pesos
+        self.theta += hp.lr / (hp.best_directions * sigma_r) * step #Atualizando a matriz  de pesos
 
 
 def explore(env, normalizer, policy, direction = None, delta=None):
@@ -475,7 +481,7 @@ def train(env, policy, normalizer, hp):
         
         #obtendo todas as recompensas positivas e negativas para computar o desvio dessas recompensas
         all_reward = np.array(positive_rewards + negative_rewards)
-        sigma_r = all_rewards.std()
+        sigma_r = all_reward.std()
 
         #ordenacao dos rollouts e selecao das melhores direcoes
         scores = {k: max(r_pos, r_neg) for k, (r_pos, r_neg) in enumerate(zip(positive_rewards, negative_rewards))}
@@ -512,17 +518,21 @@ motorCar.movimentacarro(3)
 motorCar.movimentacarro(4)
 motorCar.movimentacarro(5)
 motorCar.movimentacarro(0)
-
-
-carEnv = CarEnv(motorCar, radar)
-
-
-# + tags=[]
 print(radar.get_distancias())
 
-# -
 
 carEnv = CarEnv(motorCar, radar)
+print(radar.get_distancias())
 
+
+
+# + tags=["outputPrepend"]
+
+hp = Hiperparametros()
+np.random.seed(hp.seed)
+police = Politicas(carEnv.input_size, carEnv.output_size)
+normalizer = Normalizacao(carEnv.input_size)
+train(carEnv,police,normalizer,hp)
+# -
 
 
