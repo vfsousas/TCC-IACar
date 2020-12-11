@@ -46,10 +46,13 @@ class radar_new():
         
         timeElapsed = stopTime - startTime
         distance = (timeElapsed * 34300)/2
-
-
         return int(distance)
 
+    def test(self):
+        if len(self.get_distancias()) > 0:
+            return "RADAR OK"
+        return "RADAR FAIL"
+        
     def get_distancias(self):
         distancias = []
         distancias.append(self.distance(self.TRIGGER01, self.ECHO01))
