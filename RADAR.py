@@ -29,6 +29,12 @@ class radar_new():
 
         self.raspGPIO.setup(self.TRIGGER04, self.raspGPIO.OUT)
         self.raspGPIO.setup(self.ECHO04, self.raspGPIO.IN)
+        
+        self.raspGPIO.output(self.TRIGGER01, False)
+        self.raspGPIO.output(self.TRIGGER02, False)
+        self.raspGPIO.output(self.TRIGGER03, False)
+        self.raspGPIO.output(self.TRIGGER04, False)
+        time.sleep(2)
 
     def distance(self, TRIGGER, ECHO):
         self.raspGPIO.output(TRIGGER, True)
@@ -52,7 +58,7 @@ class radar_new():
         if len(self.get_distancias()) > 0:
             return "RADAR OK"
         return "RADAR FAIL"
-        
+
     def get_distancias(self):
         distancias = []
         distancias.append(self.distance(self.TRIGGER01, self.ECHO01))
