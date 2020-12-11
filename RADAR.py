@@ -1,55 +1,60 @@
 
-import RPi.GPIO as GPIO
 import time
-import board
-import board, busio, adafruit_vl53l0x
-from digitalio import DigitalInOut
 
-import VL53L0X
+class radar_new():
+    def __init__(self, raspGPIO):
+        self.TRIGGER01 = 19
+        self.ECHO01 = 26
 
-objGPIO = GPIO
-objGPIO.cleanup() # limpa todos os estados de todas as portasmotorCar.
-objGPIO.setmode(GPIO.BCM) #Definindi uso dos numeros das portas por canais
+        self.TRIGGER02 = 13
+        self.ECHO02 = 6
 
-xhut1 = 4 
-xhut2 = 17
-xhut3 = 27
+        self.TRIGGER03 = 5
+        self.ECHO03 = 11
 
-objGPIO.setup(xhut1, GPIO.OUT)
-objGPIO.setup(xhut1, GPIO.LOW)
+        self.TRIGGER04 = 9
+        self.ECHO04 = 10
+        self.raspGPIO = raspGPIO
 
-objGPIO.setup(xhut2, GPIO.OUT)
-objGPIO.setup(xhut2, GPIO.LOW)
+    def initialize(self):
+        #set self.raspGPIO directions (in/out
+        self.raspGPIO.setup(self.TRIGGER01, self.raspGPIO.OUT)
+        self.raspGPIO.setup(self.ECHO01, self.raspGPIO.IN)
 
-objGPIO.setup(xhut3, GPIO.OUT)
-objGPIO.setup(xhut3, GPIO.LOW)
+        self.raspGPIO.setup(self.TRIGGER02, self.raspGPIO.OUT)
+        self.raspGPIO.setup(self.ECHO02, self.raspGPIO.IN)
 
+        self.raspGPIO.setup(self.TRIGGER03, self.raspGPIO.OUT)
+        self.raspGPIO.setup(self.ECHO03, self.raspGPIO.IN)
 
-time.sleep(1)
+        self.raspGPIO.setup(self.TRIGGER04, self.raspGPIO.OUT)
+        self.raspGPIO.setup(self.ECHO04, self.raspGPIO.IN)
 
+    def distance(self, TRIGGER, ECHO):
+        self.raspGPIO.output(TRIGGER, True)
+        time.sleep(0.00001)
+        self.raspGPIO.output(TRIGGER, False)
 
-objGPIO.setup(xhut1, GPIO.HIGH)
-time.sleep(1)
-tof = VL53L0X.VL53L0X(i2c_address=0x29)
-##tof.change_address(new_address=0x2D)#
-tof.start_ranging(VL53L0X.Vl53l0xAccuracyMode.BEST)
-tof.get_distance()
+        startTime = time.time()
+        stopTime = time.time()
 
-#objGPIO.setup(xhut2, GPIO.HIGH)
-#time.sleep(1)
-#tof2 = VL53L0X.VL53L0X(i2c_bus=1, i2c_address=0x29)
-#tof2.change_address(new_address=0x2B)        
+        while self.raspGPIO.input(ECHO) == 0:
+            startTime = time.time()
 
-
-#objGPIO.setup(xhut3, GPIO.HIGH)
-#time.sleep(1)
-#tof3 = VL53L0X.VL53L0X(i2c_bus=1, i2c_address=0x2D)
-#tof3.change_address(new_address=0x2F)        
-#tof3.start_ranging()
-
-#time.sleep(2)
-#tof.start_ranging(VL53L0X.Vl53l0xAccuracyMode.BETTER)
+        while self.raspGPIO.input(ECHO) == 1:
+            stopTime = time.time()
+        
+        timeElapsed = stopTime - startTime
+        distance = (timeElapsed * 34300)/2
 
 
-#timing = tof.get_timing()
+        return int(distance)
+
+    def get_distancias(self):
+        distancias = []
+        distancias.append(self.distance(self.TRIGGER01, self.ECHO01))
+        distancias.append(self.distance(self.TRIGGER02, self.ECHO02))
+        distancias.append(self.distance(self.TRIGGER03, self.ECHO03))
+        distancias.append(self.distance(self.TRIGGER04, self.ECHO04))
+        return distancias
 
