@@ -233,10 +233,9 @@ class CarEnv:
         
         print("Count FINISH:", self.finishCount)
 
-        self.finishStatus = False
         if self.finishCount>=3:
-            self.finishStatus = True
-        return self.finishStatus
+            return True
+        return False
 
     def step(self, action):
         self.take_action(action)
@@ -289,8 +288,8 @@ class CarEnv:
 
 class Hiperparametros():
     def __init__(self):
-        self.steps = 100
-        self.epsodes = 100
+        self.epochs = 1000
+        self.epsodes = 10
         self.lr = 0.02
         self.directions = 6
         self.best_directions = 6
@@ -431,7 +430,7 @@ def explore(env, normalizer, policy, direction = None, delta=None):
     done = False #inicia em False o objetivo
     num_plays = 0. #contador de rodadas no episódio
     sum_rewards = 0 #soma das recompensas
-    while not done and num_plays < hp.epsodes:
+    while not done or num_plays < hp.epsodes:
        print('Execucao: ', num_plays, ', Episodio: ', hp.epsodes, ' Finalizado: ', done)
        normalizer.observe(state) #Atualiza o calculo da variancia nos dados recebidos do sensor de movimento
        state = normalizer.normalize(state) #Realiza o calculo da normalização(Padronização) deixando todos os estados entre -1 e 1
@@ -460,7 +459,7 @@ def train(env, policy, normalizer, hp):
     LoadMatrixFolder = None
     loadMatrixNegativeFilename = None
     DeltaFilename = None
-    for step in range(hp.steps):
+    for step in range(hp.epochs):
         
         if loadMatrixPositiveFilename and loadMatrixNegativeFilename and LoadMatrixFolder and DeltaFilename:
             deltas = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename) #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
