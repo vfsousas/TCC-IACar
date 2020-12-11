@@ -120,7 +120,7 @@ class MotorCarro:
              self.left_backward()
         elif movimento==5:
              self.right_backward()
-        time.sleep(0.1)
+        time.sleep(0.25)
 
         self.stop()
 

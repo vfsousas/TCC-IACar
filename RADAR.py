@@ -59,5 +59,9 @@ class radar_new():
         distancias.append(self.distance(self.TRIGGER02, self.ECHO02))
         distancias.append(self.distance(self.TRIGGER03, self.ECHO03))
         distancias.append(self.distance(self.TRIGGER04, self.ECHO04))
+        time.sleep(1)
         return distancias
 
+if __name__ == "__main__":
+    
+    radar 
