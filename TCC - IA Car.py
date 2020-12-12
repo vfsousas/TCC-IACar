@@ -114,6 +114,7 @@ class MotorCarro:
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
     
     def movimentacarro(self, movimento):
+        #'forward', 'backward', 'leftforward', 'rightforward', 'leftbackward', 'rightbackward'
         if movimento==0:
             self.forward()
         elif movimento==1:
@@ -127,8 +128,6 @@ class MotorCarro:
         elif movimento==5:
              self.right_backward()
         time.sleep(0.5)
-
-        self.stop()
 
 
 class ServoMotor:
@@ -227,12 +226,10 @@ class CarEnv:
         '''
         Quando o carro se movimentar 3 vezes para a frente sem parar é o objetivo dele
         '''
-        print("STATE FINISH:", state)
         if(state[1]>15  and state[3]>15):
             self.finishCount+=1
         else:
             self.finishCount=0
-        
         print("Count FINISH:", self.finishCount)
 
         if self.finishCount>=3:
@@ -250,8 +247,6 @@ class CarEnv:
     def getState(self):
         try:
             self.state = self.radar.get_distancias()
-        finally:
-           self.motorCar.movimentacarro(0)
         return self.state
         
     def take_action(self, action):
@@ -261,11 +256,9 @@ class CarEnv:
         self.motorCar.movimentacarro(l)
 
     def getReward(self):
-
         #f = lambda x: 10 if  x>100 else -10
         #return f(max(self.state[:5]))
         retVal = -1
-        print('state recompensa', self.state)
         if(self.state[0]>15  and self.state[1]>15  and self.state[2]>15  and self.state[3]>15):
             retVal=1
         return retVal
@@ -439,7 +432,7 @@ def explore(env, normalizer, policy, direction = None, delta=None):
        action = policy.evaluate(state, delta, direction) #atualizada a matriz de pesos de acordo com a direçao selecionada e retirna 
        reward, state, done = env.step(action) #Executa a ação selecionada e retirna a nova leitura do ambiente e se foi finalizado 
        #reward = max(min(reward, 1), -1)#evita outlier nas recompensas
-       print('Execucao: ', num_plays, ', Recompensa: ', reward, 'Finalizado: ', done)
+       print('Execucao: ', num_plays, ', State: ', state, ', Action: ', action,', Recompensa: ', reward, 'Finalizado: ', done)
        sum_rewards += reward #Soma das recompensas
        num_plays +=1 #atualida o numero da rodada
     return sum_rewards
