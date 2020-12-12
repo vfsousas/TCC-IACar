@@ -73,6 +73,7 @@ class MotorCarro:
 
 
     def forward(self):
+        print('Action forward')
         self.servo.rotateMotor('center')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
@@ -80,12 +81,14 @@ class MotorCarro:
     
 
     def backward(self):
+        print('Action backward')
         self.servo.rotateMotor('center')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
 
         
     def left_forward(self):
+        print('Action left forward')
         self.servo.rotateMotor('left')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
@@ -93,16 +96,19 @@ class MotorCarro:
 
 
     def right_forward(self):
+        print('Action left forward')
         self.servo.rotateMotor('right')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
 
     def left_backward(self):
+        print('Action left backward')
         self.servo.rotateMotor('left')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
 
     def right_backward(self):
+        print('Action right backward')
         self.servo.rotateMotor('right')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
@@ -120,7 +126,7 @@ class MotorCarro:
              self.left_backward()
         elif movimento==5:
              self.right_backward()
-        time.sleep(0.25)
+        time.sleep(0.5)
 
         self.stop()
 
@@ -148,9 +154,7 @@ class ServoMotor:
         self.servo.stop()
     
     def rotateMotor(self, position):
-        print(position)
         if 'center' in position and 'center' not in self.position :
-            print('position center')
             self.servo.ChangeDutyCycle(9)
             time.sleep(0.3)
             self.servo.ChangeDutyCycle(0)
@@ -160,7 +164,6 @@ class ServoMotor:
 
         
         if 'left' in position and 'left' not in self.position:
-            print('position left')
             self.servo.ChangeDutyCycle(11)
             time.sleep(0.3)
             self.servo.ChangeDutyCycle(0)
@@ -169,7 +172,6 @@ class ServoMotor:
 
 
         if 'right' in position and 'right' not in self.position:
-            print('position right')
             self.servo.ChangeDutyCycle(7)
             time.sleep(0.3)
             self.servo.ChangeDutyCycle(0)
@@ -187,7 +189,7 @@ def mkdir(base):
         os.makedirs(path)
     return path
 
-def salvaMatrizes(matrizNome, matrizValor):
+def salvaMatrizes(matrizNome, epoch, matrizValor):
     ''''
     Cria diretórios para salvar as matrizes 
     Salva as matrizes com o nome e o valor passado como parametro
@@ -195,7 +197,7 @@ def salvaMatrizes(matrizNome, matrizValor):
     today=datetime.today().strftime('%Y-%m-%d')
     mkdir(today)
     daytime=datetime.today().strftime('%H:%M:%S')
-    np.savez(('save/%s/%s_%s.npz' % (today, matrizNome, daytime)), matrizValor)
+    np.savez(('save/%s/%s_%s_%s.npz' % (today, matrizNome, epoch, daytime)), matrizValor)
 
 def carregaMatriz(pasta, matrizNome):
     ''''
@@ -234,6 +236,7 @@ class CarEnv:
         print("Count FINISH:", self.finishCount)
 
         if self.finishCount>=3:
+            self.finishCount=0
             return True
         return False
 
@@ -431,13 +434,12 @@ def explore(env, normalizer, policy, direction = None, delta=None):
     num_plays = 0. #contador de rodadas no episódio
     sum_rewards = 0 #soma das recompensas
     while not done or num_plays < hp.epsodes:
-       print('Execucao: ', num_plays, ', Episodio: ', hp.epsodes, ' Finalizado: ', done)
        normalizer.observe(state) #Atualiza o calculo da variancia nos dados recebidos do sensor de movimento
        state = normalizer.normalize(state) #Realiza o calculo da normalização(Padronização) deixando todos os estados entre -1 e 1
        action = policy.evaluate(state, delta, direction) #atualizada a matriz de pesos de acordo com a direçao selecionada e retirna 
        reward, state, done = env.step(action) #Executa a ação selecionada e retirna a nova leitura do ambiente e se foi finalizado 
-       print("Recompensa: ", reward)
-       reward = max(min(reward, 1), -1)#evita outlier nas recompensas
+       #reward = max(min(reward, 1), -1)#evita outlier nas recompensas
+       print('Execucao: ', num_plays, ', Recompensa: ', reward, 'Finalizado: ', done)
        sum_rewards += reward #Soma das recompensas
        num_plays +=1 #atualida o numero da rodada
     return sum_rewards
@@ -459,7 +461,7 @@ def train(env, policy, normalizer, hp):
     LoadMatrixFolder = None
     loadMatrixNegativeFilename = None
     DeltaFilename = None
-    for step in range(hp.epochs):
+    for epoch in range(hp.epochs):
         
         if loadMatrixPositiveFilename and loadMatrixNegativeFilename and LoadMatrixFolder and DeltaFilename:
             deltas = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename) #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
@@ -492,11 +494,11 @@ def train(env, policy, normalizer, hp):
 
         #impressao da recompensa
         reward_evaluation = explore(env, normalizer, policy)
-        print('Step', step, 'Reward:',reward_evaluation )
+        print('SAVED Step', epoch, 'Reward:',reward_evaluation )
 
-    salvaMatrizes('positive_rewards', positive_rewards)
-    salvaMatrizes('negative_rewards', negative_rewards)
-    alvaMatrizes('deltas', deltas)
+        salvaMatrizes('positive_rewards', epoch, positive_rewards)
+        salvaMatrizes('negative_rewards', epoch, negative_rewards)
+        salvaMatrizes('deltas', epoch, deltas)
 
     
              
@@ -511,21 +513,21 @@ radar.initialize()
 servo = ServoMotor(raspGPIO)
 motorCar = MotorCarro(raspGPIO, servo)
 print(radar.get_distancias())
-motorCar.movimentacarro(1)
-motorCar.movimentacarro(2)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(4)
-motorCar.movimentacarro(5)
-motorCar.movimentacarro(0)
-print(radar.get_distancias())
+#motorCar.movimentacarro(1)
+#motorCar.movimentacarro(2)
+#motorCar.movimentacarro(3)
+#motorCar.movimentacarro(4)
+#motorCar.movimentacarro(5)
+#motorCar.movimentacarro(0)
+#print(radar.get_distancias())
 
 
 carEnv = CarEnv(motorCar, radar)
-print(radar.get_distancias())
+#print(radar.get_distancias())
 
 
 
-# + tags=["outputPrepend"]
+# + tags=[]
 
 hp = Hiperparametros()
 np.random.seed(hp.seed)

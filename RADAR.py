@@ -1,5 +1,17 @@
 
 import time
+import RPi.GPIO as GPIO
+import numpy as np
+
+
+class driverGPIO():
+    def __init__(self):
+        self.GPIO = GPIO
+        self.GPIO.cleanup()
+        self.GPIO.setmode(GPIO.BCM)
+    
+    def getGPIO(self):
+        return self.GPIO
 
 class radar_new():
     def __init__(self, raspGPIO):
@@ -12,8 +24,8 @@ class radar_new():
         self.TRIGGER03 = 5
         self.ECHO03 = 11
 
-        self.TRIGGER04 = 9
-        self.ECHO04 = 10
+        self.TRIGGER04 = 10
+        self.ECHO04 = 9
         self.raspGPIO = raspGPIO
 
     def initialize(self):
@@ -35,23 +47,36 @@ class radar_new():
         self.raspGPIO.output(self.TRIGGER03, False)
         self.raspGPIO.output(self.TRIGGER04, False)
         time.sleep(2)
+    
+
 
     def distance(self, TRIGGER, ECHO):
         self.raspGPIO.output(TRIGGER, True)
         time.sleep(0.00001)
         self.raspGPIO.output(TRIGGER, False)
-
+        counter =0
+        new_reading = False
         startTime = time.time()
         stopTime = time.time()
-
+            
         while self.raspGPIO.input(ECHO) == 0:
+            counter += 1
+            if counter == 5000:
+                new_reading = True
+                break
             startTime = time.time()
+        if new_reading:
+            return 0
 
         while self.raspGPIO.input(ECHO) == 1:
             stopTime = time.time()
+      
+       
         
         timeElapsed = stopTime - startTime
         distance = (timeElapsed * 34300)/2
+        if distance > 189:
+            distance = 5
         return int(distance)
 
     def test(self):
@@ -65,9 +90,13 @@ class radar_new():
         distancias.append(self.distance(self.TRIGGER02, self.ECHO02))
         distancias.append(self.distance(self.TRIGGER03, self.ECHO03))
         distancias.append(self.distance(self.TRIGGER04, self.ECHO04))
-        time.sleep(1)
         return distancias
 
 if __name__ == "__main__":
-    
-    radar 
+    driverG = driverGPIO()
+    radar = radar_new(driverG.getGPIO())
+    radar.initialize()
+    count=0
+    while count<3000:
+        print(radar.get_distancias())
+        count+=1
