@@ -8,7 +8,7 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.7.1
 #   kernelspec:
-#     display_name: tcc
+#     display_name: tccß
 #     metadata:
 #       interpreter:
 #         hash: 85595fc6e4c66cea5298aa77223b4d67754825b590a0f7ffb3f639c26cc9de1a
@@ -73,7 +73,7 @@ class MotorCarro:
 
 
     def forward(self):
-        print('Action forward')
+        print('Executando Action forward')
         self.servo.rotateMotor('center')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
@@ -81,14 +81,14 @@ class MotorCarro:
     
 
     def backward(self):
-        print('Action backward')
+        print('Executando Action backward')
         self.servo.rotateMotor('center')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
 
         
     def left_forward(self):
-        print('Action left forward')
+        print('Executando Action left forward')
         self.servo.rotateMotor('left')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
@@ -96,24 +96,25 @@ class MotorCarro:
 
 
     def right_forward(self):
-        print('Action left forward')
+        print('Executando Action left forward')
         self.servo.rotateMotor('right')
         self.raspGPIO.output(self.WLF, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRF, self.raspGPIO.HIGH)
 
     def left_backward(self):
-        print('Action left backward')
+        print('Executando Action left backward')
         self.servo.rotateMotor('left')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
 
     def right_backward(self):
-        print('Action right backward')
+        print('Executando Action right backward')
         self.servo.rotateMotor('right')
         self.raspGPIO.output(self.WLB, self.raspGPIO.HIGH)
         self.raspGPIO.output(self.WRB, self.raspGPIO.HIGH)
     
     def movimentacarro(self, movimento):
+        print("Action executed", movimento)
         if movimento==0:
             self.forward()
         elif movimento==1:
@@ -127,7 +128,6 @@ class MotorCarro:
         elif movimento==5:
              self.right_backward()
         time.sleep(0.5)
-
         self.stop()
 
 
@@ -257,7 +257,8 @@ class CarEnv:
     def take_action(self, action):
         movPosition = np.where(action == np.max(action)) 
         l = list(action).index(np.max(action))
-        print('action', l, np.max(action), action)
+        #print('action', l, np.max(action), action)
+        print("Äction Selected", l)
         self.motorCar.movimentacarro(l)
 
     def getReward(self):
