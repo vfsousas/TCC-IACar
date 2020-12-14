@@ -32,6 +32,7 @@ import sys
 sys.path.append(os.path.abspath("RADAR.py"))
 from RADAR import *
 import copy
+import math
 
 
 #Setup das portas logicas do Raspibery PI
@@ -56,9 +57,11 @@ class MotorCarro:
         self.WRF = 16 #Roda Esquerda Frente
         self.WRB = 12 #Roda Esquerda Frente
         self.servo = servo
-
         #GPIO Rodas dianteiras
         self.raspGPIO = raspGPIO
+        self.activateweels()
+
+    def activateweels(self):           
         self.raspGPIO.setup(self.WLF, self.raspGPIO.OUT)
         self.raspGPIO.setup(self.WLB, self.raspGPIO.OUT)
         self.raspGPIO.setup(self.WRF, self.raspGPIO.OUT)
@@ -127,7 +130,9 @@ class MotorCarro:
              self.left_backward()
         elif movimento==5:
              self.right_backward()
+            
         time.sleep(0.5)
+        self.stop()
 
 
 class ServoMotor:
@@ -135,13 +140,19 @@ class ServoMotor:
         self.position = ''
         self.servoPIN = 18
         self.raspGPIO = raspGPIO
+        self.activateservo()
+        self.alignServo()
+
+    def activateservo(self):
         self.raspGPIO.setup(self.servoPIN, GPIO.OUT)
-        self.servo = self.raspGPIO.PWM(self.servoPIN, 50) # GPIO 18 for PWM with 50Hz
+        try:
+            self.servo = self.raspGPIO.PWM(self.servoPIN, 50) # GPIO 18 for PWM with 50Hz
+        except:
+            pass
         self.servo.start(0)
-        time.sleep(2)
-
+    
+    def alignServo(self):
         duty = 11
-
         while duty >= 7:
             self.servo.ChangeDutyCycle(duty)
             time.sleep(0.3)
@@ -226,7 +237,7 @@ class CarEnv:
         '''
         Quando o carro se movimentar 3 vezes para a frente sem parar é o objetivo dele
         '''
-        if(state[1]>15  and state[3]>15):
+        if(state[1]>15):
             self.finishCount+=1
         else:
             self.finishCount=0
@@ -238,22 +249,26 @@ class CarEnv:
         return False
 
     def step(self, action):
-        self.take_action(action)
         self.state = self.getState()
+        self.take_action(action, self.state)
         self.done = self.finish(self.state)
         stepP = copy.deepcopy(self.getReward()), self.state, self.done
         return stepP
 
     def getState(self):
-        try:
-            self.state = self.radar.get_distancias()
+        self.state = self.radar.get_distancias()
         return self.state
         
-    def take_action(self, action):
+    def take_action(self, action, state):
         movPosition = np.where(action == np.max(action)) 
         l = list(action).index(np.max(action))
         #print('action', l, np.max(action), action)
-        print("Äction Selected", l)
+        #if (state[0]-20) <10 or (state[1]-20) <10 or (state[2]-20) <10:
+        #    self.motorCar.movimentacarro(1)
+        #    self.motorCar.movimentacarro(1)
+        #elif (state[3]-20) <10:
+        #    self.motorCar.movimentacarro(1)
+        #else:
         self.motorCar.movimentacarro(l)
 
     def getReward(self):
@@ -389,7 +404,6 @@ class Politicas():
         delta -- Matrix de pertubação dos numeros 
         direction -- Indica a direção do calculo para positivo ou negativo
         '''
-
         if direction is None:
             return self.theta.dot(input) #retorna a matriz de pesos que multiplica com as entradas, sem pertubações
         elif direction == 'positive':
@@ -415,6 +429,7 @@ class Politicas():
         step = np.zeros(self.theta.shape) #Inicializa com as dimensões de pesos
         for r_pos, r_neg, d in rollouts:
             step += (r_pos - r_neg) * d #Somatoria das recompensas positivas e negativas e a multicao do delta
+    
         self.theta += hp.lr / (hp.best_directions * sigma_r) * step #Atualizando a matriz  de pesos
 
 
@@ -451,15 +466,16 @@ def train(env, policy, normalizer, hp):
       Realiza o treinamento da rede
    
     '''
-    loadMatrixPositiveFilename = None
-    LoadMatrixFolder = None
-    loadMatrixNegativeFilename = None
-    DeltaFilename = None
-    for epoch in range(hp.epochs):
+    loadMatrixPositiveFilename = "positive_rewards_0_14:10:57.npz"
+    LoadMatrixFolder = "2020-12-13"
+    loadMatrixNegativeFilename = "negative_rewards_0_14:10:57.npz"
+    DeltaFilename = "deltas_0_14:10:57.npz"
+    actualEpoch = 1
+    for epoch in range(actualEpoch, hp.epochs):
         
         if loadMatrixPositiveFilename and loadMatrixNegativeFilename and LoadMatrixFolder and DeltaFilename:
             deltas = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename) #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
-            #positive_rewards = 
+            positive_rewards = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename)
             negative_rewards = carregaMatriz(LoadMatrixFolder, DeltaFilename)
         else:
             deltas = policy.samples_deltas() #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
@@ -469,10 +485,13 @@ def train(env, policy, normalizer, hp):
         #obtendo as recompensas na direcao positiva
         for k in range(hp.directions):
             positive_rewards[k] = explore(env, normalizer, policy, direction='positive', delta=deltas[k])
+            print("Positive Reward", k)
             
         #obtendo recompensa na direcao negativa
         for k in range(hp.directions):
-            positive_rewards[k] = explore(env, normalizer, policy,  direction='negative', delta=deltas[k])
+            negative_rewards[k] = explore(env, normalizer, policy,  direction='negative', delta=deltas[k])
+            print("Negative Reward", k)
+
         
         #obtendo todas as recompensas positivas e negativas para computar o desvio dessas recompensas
         all_reward = np.array(positive_rewards + negative_rewards)
@@ -502,17 +521,25 @@ def train(env, policy, normalizer, hp):
 
 raspGPIO  = SetupGPIO()
 raspGPIO = raspGPIO.get_gpio()
-radar = radar_new(raspGPIO)
-radar.initialize()
 servo = ServoMotor(raspGPIO)
 motorCar = MotorCarro(raspGPIO, servo)
+radar = radar_new(raspGPIO, motorCar, servo)
+radar.initialize()
 print(radar.get_distancias())
-#motorCar.movimentacarro(1)
-#motorCar.movimentacarro(2)
-#motorCar.movimentacarro(3)
-#motorCar.movimentacarro(4)
-#motorCar.movimentacarro(5)
-#motorCar.movimentacarro(0)
+motorCar.movimentacarro(1)
+motorCar.movimentacarro(1)
+motorCar.movimentacarro(1) 
+motorCar.movimentacarro(2)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(3)
+motorCar.movimentacarro(0)
+motorCar.movimentacarro(0)
+motorCar.movimentacarro(5)
+motorCar.movimentacarro(0)
 #print(radar.get_distancias())
 
 
