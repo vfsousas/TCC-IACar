@@ -141,15 +141,22 @@ class ServoMotor:
         self.servoPIN = 18
         self.raspGPIO = raspGPIO
         self.activateservo()
+        self.raspGPIO.setup(self.servoPIN, GPIO.OUT)
+        self.servo = self.raspGPIO.PWM(self.servoPIN, 50) # GPIO 18 for PWM with 50Hz
+        self.servo.start(0)
         self.alignServo()
 
     def activateservo(self):
         self.raspGPIO.setup(self.servoPIN, GPIO.OUT)
-        try:
-            self.servo = self.raspGPIO.PWM(self.servoPIN, 50) # GPIO 18 for PWM with 50Hz
-        except:
-            pass
-        self.servo.start(0)
+        #try:
+        #    self.servo = self.raspGPIO.PWM(self.servoPIN, 50) # GPIO 18 for PWM with 50Hz
+        #except:
+        #    self.servo.stop()
+        #    time.sleep(0.5)
+        #    self.servo = self.raspGPIO.PWM(self.servoPIN, 50)
+        #self.servo.start(0)
+        #self.servo.ChangeDutyCycle(0)
+
     
     def alignServo(self):
         duty = 11
@@ -232,27 +239,29 @@ class CarEnv:
         self.motorCar =  motorCarro
         self.finishCount = 0
         self.radar = radar
+        self.lastmovCount=0
     
-    def finish(self, state):
+    def finish(self, state, lastmov):
         '''
         Quando o carro se movimentar 3 vezes para a frente sem parar é o objetivo dele
         '''
-        if(state[1]>15):
+        if(state[1]>15 and (lastmov == 0 or lastmov == 2 or lastmov == 3)):
             self.finishCount+=1
         else:
             self.finishCount=0
+
         print("Count FINISH:", self.finishCount)
 
-        if self.finishCount>=3:
+        if self.finishCount>=3 :
             self.finishCount=0
             return True
         return False
 
     def step(self, action):
         self.state = self.getState()
-        self.take_action(action, self.state)
-        self.done = self.finish(self.state)
-        stepP = copy.deepcopy(self.getReward()), self.state, self.done
+        action_selected = self.take_action(action, self.state)
+        self.done = self.finish(self.state, action_selected)
+        stepP = copy.deepcopy(self.getReward(action_selected)), self.state, self.done
         return stepP
 
     def getState(self):
@@ -270,13 +279,17 @@ class CarEnv:
         #    self.motorCar.movimentacarro(1)
         #else:
         self.motorCar.movimentacarro(l)
+        return l
 
-    def getReward(self):
+    def getReward(self, action):
         #f = lambda x: 10 if  x>100 else -10
         #return f(max(self.state[:5]))
         retVal = -1
         if(self.state[0]>15  and self.state[1]>15  and self.state[2]>15  and self.state[3]>15):
             retVal=1
+            if action == 0 or action == 2 or action == 3:
+                retVal=10
+
         return retVal
 
 
@@ -304,7 +317,7 @@ class Hiperparametros():
         self.epsodes = 10
         self.lr = 0.02
         self.directions = 6
-        self.best_directions = 6
+        self.best_directions = 2
         assert self.best_directions <= self.directions
         self.noise = 0.03
         self.seed = 1
@@ -466,17 +479,21 @@ def train(env, policy, normalizer, hp):
       Realiza o treinamento da rede
    
     '''
-    loadMatrixPositiveFilename = "positive_rewards_0_14:10:57.npz"
-    LoadMatrixFolder = "2020-12-13"
-    loadMatrixNegativeFilename = "negative_rewards_0_14:10:57.npz"
-    DeltaFilename = "deltas_0_14:10:57.npz"
-    actualEpoch = 1
+    loadMatrixPositiveFilename = None
+    LoadMatrixFolder =None
+    loadMatrixNegativeFilename = None
+    DeltaFilename = None
+    actualEpoch = 0
     for epoch in range(actualEpoch, hp.epochs):
         
         if loadMatrixPositiveFilename and loadMatrixNegativeFilename and LoadMatrixFolder and DeltaFilename:
-            deltas = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename) #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
+            deltas = carregaMatriz(LoadMatrixFolder, DeltaFilename) #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
             positive_rewards = carregaMatriz(LoadMatrixFolder, loadMatrixPositiveFilename)
-            negative_rewards = carregaMatriz(LoadMatrixFolder, DeltaFilename)
+            negative_rewards = carregaMatriz(LoadMatrixFolder, loadMatrixNegativeFilename)
+            print('deltas', deltas)
+            print('positive_rewards', positive_rewards)
+            print('negative_rewards', negative_rewards)
+
         else:
             deltas = policy.samples_deltas() #Inicializacao das pertubacoes (deltas) e as recompensas negativas e positivas)
             positive_rewards = [0] * hp.directions #inicializando a matriz de recompensas positivas
@@ -526,20 +543,7 @@ motorCar = MotorCarro(raspGPIO, servo)
 radar = radar_new(raspGPIO, motorCar, servo)
 radar.initialize()
 print(radar.get_distancias())
-motorCar.movimentacarro(1)
-motorCar.movimentacarro(1)
-motorCar.movimentacarro(1) 
-motorCar.movimentacarro(2)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(3)
-motorCar.movimentacarro(0)
-motorCar.movimentacarro(0)
-motorCar.movimentacarro(5)
-motorCar.movimentacarro(0)
+
 #print(radar.get_distancias())
 
 
