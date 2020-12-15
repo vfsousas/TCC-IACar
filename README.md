@@ -3,24 +3,18 @@
 
 # TCC-IACar
 
-  
-  
-  
-
 Este repositório será utilizado pra o TCC da Faculdade Facens
 
   
-
-**Aluno:** Vanderson Ferreira de Sousa
-
-  
-
+**Aluno:** Vanderson Ferreira de Sousa (vandersom@gmail.com)
 **RA:** 183140
+**Curso:** Inteligência Artificial Aplicada - Machine Learning
+**Orientador:** Johannes Von Lochter 
+
 
   
 
 ## Introdução
-
 Recentemente, foi descoberto um tipo muito novo de IA que você pode construir a partir zero e sem a necessidade de qualquer biblioteca de Machine Learning ou DeepLearning. Esta IA revolucionária é chamada ***Augmented Random Search(ARS)***.
 
 Em uma implementação muito simples, é capaz de fazer exatamente o mesmo coisa que o Google Deep Mind fez em sua realização no ano passado que é treinar uma IA para andar e correr em um campo.
