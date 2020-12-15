@@ -7,9 +7,13 @@ Este repositório será utilizado pra o TCC da Faculdade Facens
 
   
 **Aluno:** Vanderson Ferreira de Sousa (vandersom@gmail.com)
+
 **RA:** 183140
+
 **Curso:** Inteligência Artificial Aplicada - Machine Learning
+
 **Orientador:** Johannes Von Lochter 
+
 
 
   
