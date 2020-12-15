@@ -108,3 +108,5 @@ A versão anterior do carro se mostrou muito instavel nos testes, além de ser m
 A nova versão vem com um chassi de acrilico mais reforçado, um "eixo de direção" controlado por um servo motor e 3 sensores de direção VL53l0X fixos
 <img src='imagens/carrov2.jpeg' width=700  height=400>
 
+Após a atualização do chassi do carro e inclusão do eixo de direção, esse foi o resultado obtido com o treino na época 01
+[![LINK](https://i.ytimg.com/vi/Ea_02p__5Iw/hqdefault.jpg)](https://www.youtube.com/watch?v=Ea_02p__5Iw)
