@@ -314,7 +314,7 @@ class CarEnv:
 class Hiperparametros():
     def __init__(self):
         self.epochs = 1000
-        self.epsodes = 10
+        self.epsodes = 100
         self.lr = 0.02
         self.directions = 6
         self.best_directions = 2
@@ -455,7 +455,7 @@ def explore(env, normalizer, policy, direction = None, delta=None):
     done = False #inicia em False o objetivo
     num_plays = 0. #contador de rodadas no episódio
     sum_rewards = 0 #soma das recompensas
-    while not done or num_plays < hp.epsodes:
+    while not done and num_plays < hp.epsodes:
        normalizer.observe(state) #Atualiza o calculo da variancia nos dados recebidos do sensor de movimento
        state = normalizer.normalize(state) #Realiza o calculo da normalização(Padronização) deixando todos os estados entre -1 e 1
        action = policy.evaluate(state, delta, direction) #atualizada a matriz de pesos de acordo com a direçao selecionada e retirna 
@@ -479,11 +479,11 @@ def train(env, policy, normalizer, hp):
       Realiza o treinamento da rede
    
     '''
-    loadMatrixPositiveFilename = None
-    LoadMatrixFolder =None
-    loadMatrixNegativeFilename = None
-    DeltaFilename = None
-    actualEpoch = 0
+    loadMatrixPositiveFilename = "positive_rewards_6_16:57:05.npz"
+    LoadMatrixFolder ="2020-12-14"
+    loadMatrixNegativeFilename = "negative_rewards_6_16:57:05.npz"
+    DeltaFilename = "deltas_6_16:57:05.npz"
+    actualEpoch = 7
     for epoch in range(actualEpoch, hp.epochs):
         
         if loadMatrixPositiveFilename and loadMatrixNegativeFilename and LoadMatrixFolder and DeltaFilename:
